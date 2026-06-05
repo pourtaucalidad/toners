@@ -43,12 +43,14 @@ tr:nth-child(even) td{background:#f8fafc}
 .nbar{display:flex;justify-content:space-between;align-items:center;background:#f0fdf4;border:1px solid #86efac;border-radius:10px;padding:10px 14px;margin-bottom:12px}
 .nbar span{font-weight:700}
 .nbar button{background:none;border:none;color:#888;cursor:pointer;font-size:13px}
-.qr-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:12px}
+.qr-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:12px}
 .qr-item{border:1px solid #ddd;border-radius:8px;padding:10px;text-align:center;background:#fff}
-.qr-item img{width:120px;height:120px}
+.qr-item img{width:140px;height:140px}
 .loading{display:flex;flex-direction:column;align-items:center;justify-content:center;height:80vh;color:#555}
 textarea{width:100%;height:180px;border-radius:8px;border:1px solid #ccc;padding:10px;font-size:13px;font-family:monospace;resize:vertical}
 .overflow{overflow-x:auto}
+.toner-banner{background:#e0f2fe;border:2px solid #0284c7;border-radius:12px;padding:14px;margin-bottom:14px;text-align:center}
+.toner-banner p{margin:0}
 @media print{.topbar,.tabs,.btn,.no-print{display:none!important}}
 </style>
 </head>
@@ -61,6 +63,7 @@ textarea{width:100%;height:180px;border-radius:8px;border:1px solid #ccc;padding
 <script>
 var ADMIN_PIN = "Pourtau123";
 var SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxnBCwaABRy9diVsrbEbcK53SXVXAWSh7BDCBdL9sP2129krm6GN7z6ISRYJVsPDQra/exec";
+var PAGE_URL = "https://pourtaucalidad.github.io/toners/stock-toners.html";
 
 var TONERS = [
   {id:"LA-HP151AC",       nombre:"LA-HP151AC",                  impresora:"LaserJet PRO MFP 4103fdw",         b:5,  t:0, o:0},
@@ -85,6 +88,7 @@ var historial = [];
 var nombre = "";
 var sucursal = "Brandsen";
 var scanResult = null;
+var autoToner = null;
 var camStream = null;
 var rafId = null;
 var adminTab = "stock";
@@ -100,6 +104,15 @@ function apiPost(data){
 }
 
 function initData(){
+  // Leer parametro ?toner= de la URL
+  var params = new URLSearchParams(window.location.search);
+  var tonerParam = params.get("toner");
+  if(tonerParam){
+    for(var i=0;i<TONERS.length;i++){
+      if(TONERS[i].id===tonerParam){ autoToner=TONERS[i]; break; }
+    }
+  }
+
   showLoading("Conectando con Google Sheets...");
   var rows = TONERS.map(function(t){ return [t.id,t.nombre,t.impresora,t.b,t.t,t.o]; });
   apiPost({action:"initStock",rows:rows})
@@ -134,7 +147,8 @@ function renderPersonal(){
   el("btnAdmin").style.display="";
   stopCam(); scanResult=null;
   var html="<div class='wrap'>";
-  html+="<div style='text-align:center;margin:20px 0'><div style='font-size:44px'>&#128424;</div><h2 style='color:#1e3a5f;margin:4px 0'>Retiro de Toner</h2><p style='color:#888;font-size:13px'>Escana el QR del toner que te llevas</p></div>";
+  html+="<div style='text-align:center;margin:20px 0'><div style='font-size:44px'>&#128424;</div><h2 style='color:#1e3a5f;margin:4px 0'>Retiro de Toner</h2><p style='color:#888;font-size:13px'>Completa los datos para registrar el retiro</p></div>";
+
   if(!nombre){
     html+="<div class='card'><p style='font-weight:700;font-size:14px;margin-bottom:10px'>Tu nombre</p>";
     html+="<input type='text' id='inpNombre' placeholder='Nombre y apellido...'>";
@@ -143,14 +157,28 @@ function renderPersonal(){
     html+="<div class='nbar'><span>"+nombre+"</span><button onclick='cambiarNombre()'>Cambiar</button></div>";
     html+="<div class='card' style='margin-bottom:12px'><p style='font-weight:700;font-size:14px;margin-bottom:10px'>Sucursal</p><div class='suc-row'>";
     ["Brandsen","Tandil","Olavarria"].forEach(function(s){
-      var cls="suc-btn"+(sucursal===s?" on":"");
-      html+="<button class='"+cls+"' onclick='setSucursal(\""+s+"\")'>"+s+"</button>";
+      html+="<button class='suc-btn"+(sucursal===s?" on":"")+"' onclick='setSucursal(\""+s+"\")'>"+s+"</button>";
     });
     html+="</div></div>";
-    html+="<button class='btn full' style='font-size:18px;padding:18px' onclick='startCam()'>Escanear QR del toner</button>";
-    html+="<div id='camWrap' style='margin-top:12px'></div>";
-    html+="<div id='scanConfirm'></div>";
-    html+="<div id='scanMsg'></div>";
+
+    // Si vino con toner por URL, mostrarlo directo
+    if(autoToner){
+      html+="<div class='toner-banner'>";
+      html+="<p style='font-size:12px;color:#0369a1;margin-bottom:4px'>Toner detectado desde QR:</p>";
+      html+="<p style='font-weight:800;font-size:20px;color:#1e3a5f;margin-bottom:2px'>"+autoToner.nombre+"</p>";
+      html+="<p style='font-size:12px;color:#666'>"+autoToner.impresora+"</p>";
+      html+="</div>";
+      var cur=stock[autoToner.id]?stock[autoToner.id][sucursal.toLowerCase()]||0:0;
+      var col=cur>0?"#16a34a":"#dc2626";
+      html+="<p style='font-size:14px;margin-bottom:14px;text-align:center'>Stock en <b>"+sucursal+"</b>: <b style='color:"+col+"'>"+cur+" unidades</b></p>";
+      html+="<button class='btn green full' id='btnConf' onclick='confirmarAutoSalida()'>Confirmar retiro</button>";
+      html+="<div id='scanMsg'></div>";
+    } else {
+      html+="<button class='btn full' style='font-size:18px;padding:18px' onclick='startCam()'>Escanear QR del toner</button>";
+      html+="<div id='camWrap' style='margin-top:12px'></div>";
+      html+="<div id='scanConfirm'></div>";
+      html+="<div id='scanMsg'></div>";
+    }
   }
   html+="</div>";
   setHTML("app",html);
@@ -175,6 +203,29 @@ function confirmarNombre(){
   renderPersonal();
 }
 
+function confirmarAutoSalida(){
+  var btn=el("btnConf");
+  if(btn){ btn.disabled=true; btn.textContent="Guardando..."; }
+  var key=sucursal.toLowerCase();
+  var cur=stock[autoToner.id]?stock[autoToner.id][key]||0:0;
+  if(cur<=0){ setHTML("scanMsg","<div class='msg warn'>Sin stock en "+sucursal+"</div>"); if(btn){btn.disabled=false;btn.textContent="Confirmar retiro";} return; }
+  var row=stock[autoToner.id]._row;
+  var nb=key==="brandsen"?cur-1:stock[autoToner.id].brandsen||0;
+  var nt=key==="tandil"  ?cur-1:stock[autoToner.id].tandil||0;
+  var no=key==="olavarria"?cur-1:stock[autoToner.id].olavarria||0;
+  var tid=autoToner.id, tname=autoToner.nombre, timp=autoToner.impresora;
+  apiPost({action:"updateStock",row:row,brandsen:nb,tandil:nt,olavarria:no})
+    .then(function(){
+      return apiPost({action:"addHistorial",fecha:new Date().toLocaleString("es-AR"),toner:tname,impresora:timp,sucursal:sucursal,nombre:nombre});
+    })
+    .then(function(){
+      stock[tid][key]=cur-1;
+      if(btn){ btn.disabled=true; btn.textContent="Registrado"; }
+      setHTML("scanMsg","<div class='msg ok'>Retiro registrado correctamente</div>");
+    })
+    .catch(function(e){ setHTML("scanMsg","<div class='msg err'>Error: "+e.message+"</div>"); });
+}
+
 function showScanResult(toner){
   scanResult=toner;
   var key=sucursal.toLowerCase();
@@ -192,11 +243,7 @@ function showScanResult(toner){
   setHTML("scanConfirm",html);
 }
 
-function cancelarScan(){
-  scanResult=null;
-  setHTML("scanConfirm","");
-  setHTML("camWrap","");
-}
+function cancelarScan(){ scanResult=null; setHTML("scanConfirm",""); setHTML("camWrap",""); }
 
 function confirmarSalida(){
   if(!scanResult) return;
@@ -219,7 +266,7 @@ function confirmarSalida(){
       setHTML("scanConfirm","");
       showMsg("Retiro registrado correctamente","ok");
     })
-    .catch(function(e){ showMsg("Error al guardar: "+e.message,"err"); });
+    .catch(function(e){ showMsg("Error: "+e.message,"err"); });
   scanResult=null;
 }
 
@@ -228,37 +275,21 @@ function showMsg(txt,type){
   setHTML("scanMsg",html);
 }
 
-function nuevoScan(){
-  setHTML("scanMsg","");
-  setHTML("camWrap","");
-  startCam();
-}
+function nuevoScan(){ setHTML("scanMsg",""); setHTML("camWrap",""); startCam(); }
 
 function startCam(){
-  var html="<div id='videoWrap'>";
-  html+="<video id='camVideo' playsinline muted></video>";
-  html+="<canvas id='camCanvas' style='display:none'></canvas>";
-  html+="<button class='cam-cancel' onclick='cancelCam()'>X Cancelar</button>";
-  html+="<div class='cam-hint'>Apunta la camara al codigo QR</div>";
-  html+="</div>";
+  var html="<div id='videoWrap'><video id='camVideo' playsinline muted></video><canvas id='camCanvas' style='display:none'></canvas><button class='cam-cancel' onclick='cancelCam()'>X Cancelar</button><div class='cam-hint'>Apunta la camara al codigo QR</div></div>";
   setHTML("camWrap",html);
   navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"}})
     .then(function(stream){
       camStream=stream;
-      var v=el("camVideo");
-      v.srcObject=stream;
-      v.play();
+      var v=el("camVideo"); v.srcObject=stream; v.play();
       setTimeout(scanTick,600);
     })
-    .catch(function(){
-      setHTML("camWrap","<p style='color:red;text-align:center;margin-top:8px'>No se pudo acceder a la camara</p>");
-    });
+    .catch(function(){ setHTML("camWrap","<p style='color:red;text-align:center;margin-top:8px'>No se pudo acceder a la camara</p>"); });
 }
 
-function cancelCam(){
-  stopCam();
-  setHTML("camWrap","");
-}
+function cancelCam(){ stopCam(); setHTML("camWrap",""); }
 
 function scanTick(){
   var v=el("camVideo"), c=el("camCanvas");
@@ -269,15 +300,11 @@ function scanTick(){
     var img=c.getContext("2d").getImageData(0,0,c.width,c.height);
     var code=jsQR(img.data,img.width,img.height);
     if(code){
-      stopCam();
-      setHTML("camWrap","");
+      stopCam(); setHTML("camWrap","");
       var toner=null;
-      for(var i=0;i<TONERS.length;i++){
-        if(TONERS[i].id===code.data){ toner=TONERS[i]; break; }
-      }
+      for(var i=0;i<TONERS.length;i++){ if(TONERS[i].id===code.data){ toner=TONERS[i]; break; } }
       if(!toner){ showMsg("QR no reconocido","err"); return; }
-      showScanResult(toner);
-      return;
+      showScanResult(toner); return;
     }
   }
   rafId=requestAnimationFrame(scanTick);
@@ -303,22 +330,17 @@ function showLogin(){
   setHTML("app",html);
   setTimeout(function(){
     var inp=el("inpPin");
-    if(inp){
-      inp.focus();
-      inp.addEventListener("keydown",function(e){ if(e.key==="Enter") checkPin(); });
-    }
+    if(inp){ inp.focus(); inp.addEventListener("keydown",function(e){ if(e.key==="Enter") checkPin(); }); }
   },100);
 }
 
 function checkPin(){
-  var v=el("inpPin");
-  if(!v) return;
+  var v=el("inpPin"); if(!v) return;
   if(v.value===ADMIN_PIN){
     showLoading("Cargando panel...");
     loadAll().then(function(){ renderAdmin("stock"); }).catch(function(e){ alert("Error: "+e.message); });
   } else {
-    setHTML("pinErr","Contrasena incorrecta");
-    v.value="";
+    setHTML("pinErr","Contrasena incorrecta"); v.value="";
     setTimeout(function(){ setHTML("pinErr",""); },2000);
   }
 }
@@ -329,15 +351,12 @@ function renderAdmin(tab){
   var html="<div class='wrap wide'>";
   html+="<div style='display:flex;justify-content:space-between;align-items:center;margin:12px 0'>";
   html+="<h2 style='color:#1e3a5f'>Administracion</h2>";
-  html+="<div style='display:flex;gap:8px'>";
-  html+="<button class='btn sm' onclick='refreshAdmin()'>Actualizar</button>";
-  html+="<button class='btn sm' style='background:#fee2e2;color:#dc2626' onclick='renderPersonal()'>Salir</button>";
-  html+="</div></div>";
+  html+="<div style='display:flex;gap:8px'><button class='btn sm' onclick='refreshAdmin()'>Actualizar</button>";
+  html+="<button class='btn sm' style='background:#fee2e2;color:#dc2626' onclick='renderPersonal()'>Salir</button></div></div>";
   html+="<div class='tabs'>";
   var tabLabels={stock:"Stock",reporte:"Reporte",historial:"Historial",qr:"QR"};
   ["stock","reporte","historial","qr"].forEach(function(t){
-    var cls="tab"+(tab===t?" on":"");
-    html+="<button class='"+cls+"' onclick='renderAdmin(\""+t+"\")'>"+tabLabels[t]+"</button>";
+    html+="<button class='tab"+(tab===t?" on":"")+"' onclick='renderAdmin(\""+t+"\")'>"+tabLabels[t]+"</button>";
   });
   html+="</div>";
 
@@ -402,10 +421,11 @@ function renderAdmin(tab){
   }
 
   if(tab==="qr"){
-    html+="<p style='font-size:13px;color:#555;margin-bottom:12px'>Imprime, recorta y pega un QR en cada modelo de toner.</p>";
+    html+="<p style='font-size:13px;color:#555;margin-bottom:12px'>Imprime, recorta y pega un QR en cada toner. Al escanearlo se abre la pagina directo con el toner detectado.</p>";
     html+="<div class='qr-grid'>";
     TONERS.forEach(function(t){
-      var qr="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data="+encodeURIComponent(t.id);
+      var url=PAGE_URL+"?toner="+encodeURIComponent(t.id);
+      var qr="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data="+encodeURIComponent(url);
       html+="<div class='qr-item'><img src='"+qr+"'>";
       html+="<p style='font-weight:700;font-size:11px;word-break:break-word;margin:6px 0 2px'>"+t.nombre+"</p>";
       html+="<p style='font-size:10px;color:#888'>"+t.impresora+"</p></div>";
@@ -418,8 +438,7 @@ function renderAdmin(tab){
 }
 
 function copiarReporte(){
-  var t=el("txtReporte");
-  if(t) navigator.clipboard.writeText(t.value);
+  var t=el("txtReporte"); if(t) navigator.clipboard.writeText(t.value);
 }
 
 function updateCell(id,suc,val){
