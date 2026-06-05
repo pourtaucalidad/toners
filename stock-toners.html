@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stock de Toners</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,sans-serif;background:#f8fafc;min-height:100vh}
+.topbar{background:#1e3a5f;padding:12px 16px;display:flex;justify-content:space-between;align-items:center}
+.topbar span{color:#fff;font-weight:700;font-size:16px}
+.topbar button{background:rgba(255,255,255,.2);border:none;color:#fff;padding:6px 14px;border-radius:8px;cursor:pointer;font-size:13px}
+.wrap{max-width:500px;margin:0 auto;padding:16px}
+.wrap.wide{max-width:960px}
+.card{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:16px;margin-bottom:12px}
+.card.blue{border:2px solid #2563eb}
+input[type=text],input[type=password]{width:100%;padding:11px 12px;border-radius:8px;border:1px solid #ccc;font-size:15px}
+input[type=number]{width:58px;text-align:center;border:1px solid #ccc;border-radius:6px;padding:5px 2px;font-size:13px}
+.btn{padding:12px 20px;background:#2563eb;color:#fff;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:15px}
+.btn:disabled{opacity:.5;cursor:default}
+.btn.full{width:100%}
+.btn.green{background:#16a34a}
+.btn.sm{padding:7px 14px;font-size:13px}
+.suc-row{display:flex;gap:8px;margin-top:4px}
+.suc-btn{flex:1;padding:10px 4px;border-radius:8px;border:none;cursor:pointer;font-weight:700;font-size:14px;background:#e8edf2;color:#333}
+.suc-btn.on{background:#1e3a5f;color:#fff}
+.tabs{display:flex;gap:6px;margin-bottom:14px}
+.tab{flex:1;padding:9px 4px;border-radius:8px;border:none;cursor:pointer;font-size:13px;background:#e8edf2;color:#333}
+.tab.on{background:#1e3a5f;color:#fff;font-weight:700}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{padding:8px 10px;text-align:left;font-weight:600;white-space:nowrap;background:#1e3a5f;color:#fff}
+td{padding:7px 10px;border-bottom:1px solid #eee}
+tr:nth-child(even) td{background:#f8fafc}
+#videoWrap{position:relative;border-radius:12px;overflow:hidden;background:#000}
+#videoWrap video{width:100%;display:block}
+.cam-hint{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.5);color:#fff;text-align:center;padding:10px;font-size:13px}
+.cam-cancel{position:absolute;top:8px;right:8px;background:rgba(0,0,0,.65);color:#fff;border:none;border-radius:20px;padding:6px 14px;cursor:pointer;font-weight:600}
+.msg{padding:14px;border-radius:10px;font-weight:600;font-size:15px;text-align:center;margin-top:12px}
+.msg.ok{background:#dcfce7}
+.msg.warn{background:#fef9c3}
+.msg.err{background:#fee2e2}
+.nbar{display:flex;justify-content:space-between;align-items:center;background:#f0fdf4;border:1px solid #86efac;border-radius:10px;padding:10px 14px;margin-bottom:12px}
+.nbar span{font-weight:700}
+.nbar button{background:none;border:none;color:#888;cursor:pointer;font-size:13px}
+.qr-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:12px}
+.qr-item{border:1px solid #ddd;border-radius:8px;padding:10px;text-align:center;background:#fff}
+.qr-item img{width:120px;height:120px}
+.loading{display:flex;flex-direction:column;align-items:center;justify-content:center;height:80vh;color:#555}
+textarea{width:100%;height:180px;border-radius:8px;border:1px solid #ccc;padding:10px;font-size:13px;font-family:monospace;resize:vertical}
+.overflow{overflow-x:auto}
+@media print{.topbar,.tabs,.btn,.no-print{display:none!important}}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <span>&#128424; Stock de Toners</span>
+  <button id="btnAdmin" onclick="showLogin()">Admin &#128272;</button>
+</div>
+<div id="app"></div>
+<script>
+var ADMIN_PIN = "Pourtau123";
+var SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxnBCwaABRy9diVsrbEbcK53SXVXAWSh7BDCBdL9sP2129krm6GN7z6ISRYJVsPDQra/exec";
+
+var TONERS = [
+  {id:"LA-HP151AC",       nombre:"LA-HP151AC",                  impresora:"LaserJet PRO MFP 4103fdw",         b:5,  t:0, o:0},
+  {id:"MC1-5179-A03H",    nombre:"mc1-5179-a03h",               impresora:"Laser Jet pro m501 hp",            b:1,  t:0, o:0},
+  {id:"LA-HPCF230AC",     nombre:"LA-HPCF230AC",                impresora:"HP Laser Jet Pro M203dw",          b:0,  t:2, o:2},
+  {id:"LA-HPUNI35",       nombre:"LA-HPUNI35",                  impresora:"HP Laser Jet P1102w",              b:0,  t:1, o:0},
+  {id:"LA-HPCF217AC",     nombre:"LA-HPCF217AC",                impresora:"hp lacerjet pro mfp 130",          b:1,  t:1, o:2},
+  {id:"LA-HPCF289X",      nombre:"LA-HPCF289X no chip",         impresora:"LASER JET ENTERPRISE M507",        b:0,  t:1, o:0},
+  {id:"CANON-T06-BLACK",  nombre:"CANON TONER T06 BLACK",       impresora:"CANON IMAGERUNNER 1643 II",        b:2,  t:0, o:1},
+  {id:"LA-HP105AC",       nombre:"LA-HP105AC",                  impresora:"HP Laser MFP 135w",                b:19, t:6, o:0},
+  {id:"LA-HP-UNI05A",     nombre:"LA-HP UNI05A / C505/280",     impresora:"Hp Laser Jet P2035n",              b:0,  t:4, o:0},
+  {id:"LA-HPCF287X",      nombre:"LA-HPCF287X",                 impresora:"LASERJET PRO M501",                b:4,  t:0, o:0},
+  {id:"LA-HPCE278A",      nombre:"LA-HPCE278A",                 impresora:"HP LASERJET P1606dn",              b:2,  t:0, o:0},
+  {id:"GN-TOCF283A",      nombre:"GN-TOCF283A CF2283A",         impresora:"LASERJET PRO M127fn",              b:3,  t:0, o:0},
+  {id:"GN-TOCF258ASC",    nombre:"GN-TOCF258ASC",               impresora:"LASER JET PRO M404DW",             b:0,  t:2, o:0},
+  {id:"PS-T409U-R",       nombre:"PS-T409U-R",                  impresora:"TOSHIBA ESTUDIO 409S",             b:0,  t:1, o:0},
+  {id:"GN-TOCF219A-DRUM", nombre:"GN-TOCF219A DRUM (con chip)", impresora:"hp lacerjet pro mfp 130 (Tambor)", b:1,  t:0, o:0}
+];
+
+var stock = {};
+var historial = [];
+var nombre = "";
+var sucursal = "Brandsen";
+var scanResult = null;
+var camStream = null;
+var rafId = null;
+var adminTab = "stock";
+
+function el(id){ return document.getElementById(id); }
+function setHTML(id,html){ var e=el(id); if(e) e.innerHTML=html; }
+
+function apiGet(action){
+  return fetch(SCRIPT_URL+"?action="+action).then(function(r){ return r.json(); });
+}
+function apiPost(data){
+  return fetch(SCRIPT_URL,{method:"POST",body:JSON.stringify(data)}).then(function(r){ return r.json(); });
+}
+
+function initData(){
+  showLoading("Conectando con Google Sheets...");
+  var rows = TONERS.map(function(t){ return [t.id,t.nombre,t.impresora,t.b,t.t,t.o]; });
+  apiPost({action:"initStock",rows:rows})
+    .then(function(){ return apiGet("getStock"); })
+    .then(function(rows){ parseStock(rows); renderPersonal(); })
+    .catch(function(e){
+      setHTML("app","<div class='loading'><div style='font-size:48px'>&#9888;</div><p style='color:#dc2626;font-weight:600'>Error conectando con Google Sheets</p><p style='font-size:13px;color:#888;margin:8px 0 16px'>"+e.message+"</p><button class='btn' onclick='initData()'>Reintentar</button></div>");
+    });
+}
+
+function parseStock(rows){
+  stock={};
+  rows.forEach(function(r,i){
+    stock[r[0]]={brandsen:parseInt(r[3])||0,tandil:parseInt(r[4])||0,olavarria:parseInt(r[5])||0,_row:i+2};
+  });
+}
+
+function loadAll(){
+  return apiGet("getStock").then(function(rows){
+    parseStock(rows);
+    return apiGet("getHistorial");
+  }).then(function(rows){
+    historial=rows.map(function(r){ return {fecha:r[0],toner:r[1],sucursal:r[3],nombre:r[4]}; });
+  });
+}
+
+function showLoading(msg){
+  setHTML("app","<div class='loading'><div style='font-size:48px'>&#128424;</div><p style='font-weight:600'>"+msg+"</p></div>");
+}
+
+function renderPersonal(){
+  el("btnAdmin").style.display="";
+  stopCam(); scanResult=null;
+  var html="<div class='wrap'>";
+  html+="<div style='text-align:center;margin:20px 0'><div style='font-size:44px'>&#128424;</div><h2 style='color:#1e3a5f;margin:4px 0'>Retiro de Toner</h2><p style='color:#888;font-size:13px'>Escana el QR del toner que te llevas</p></div>";
+  if(!nombre){
+    html+="<div class='card'><p style='font-weight:700;font-size:14px;margin-bottom:10px'>Tu nombre</p>";
+    html+="<input type='text' id='inpNombre' placeholder='Nombre y apellido...'>";
+    html+="<button class='btn full' style='margin-top:10px' onclick='confirmarNombre()'>Continuar</button></div>";
+  } else {
+    html+="<div class='nbar'><span>"+nombre+"</span><button onclick='cambiarNombre()'>Cambiar</button></div>";
+    html+="<div class='card' style='margin-bottom:12px'><p style='font-weight:700;font-size:14px;margin-bottom:10px'>Sucursal</p><div class='suc-row'>";
+    ["Brandsen","Tandil","Olavarria"].forEach(function(s){
+      var cls="suc-btn"+(sucursal===s?" on":"");
+      html+="<button class='"+cls+"' onclick='setSucursal(\""+s+"\")'>"+s+"</button>";
+    });
+    html+="</div></div>";
+    html+="<button class='btn full' style='font-size:18px;padding:18px' onclick='startCam()'>Escanear QR del toner</button>";
+    html+="<div id='camWrap' style='margin-top:12px'></div>";
+    html+="<div id='scanConfirm'></div>";
+    html+="<div id='scanMsg'></div>";
+  }
+  html+="</div>";
+  setHTML("app",html);
+  if(!nombre){
+    setTimeout(function(){
+      var inp=el("inpNombre");
+      if(inp){
+        inp.focus();
+        inp.addEventListener("keydown",function(e){ if(e.key==="Enter") confirmarNombre(); });
+      }
+    },100);
+  }
+}
+
+function cambiarNombre(){ nombre=""; renderPersonal(); }
+function setSucursal(s){ sucursal=s; renderPersonal(); }
+
+function confirmarNombre(){
+  var v=el("inpNombre");
+  if(!v||!v.value.trim()) return;
+  nombre=v.value.trim();
+  renderPersonal();
+}
+
+function showScanResult(toner){
+  scanResult=toner;
+  var key=sucursal.toLowerCase();
+  var cur=stock[toner.id]?stock[toner.id][key]||0:0;
+  var col=cur>0?"#16a34a":"#dc2626";
+  var html="<div class='card blue' style='margin-top:12px'>";
+  html+="<p style='font-size:12px;color:#555;margin-bottom:4px'>Toner detectado:</p>";
+  html+="<p style='font-weight:800;font-size:18px;color:#1e3a5f;margin-bottom:2px'>"+toner.nombre+"</p>";
+  html+="<p style='font-size:12px;color:#888;margin-bottom:10px'>"+toner.impresora+"</p>";
+  html+="<p style='font-size:14px;margin-bottom:14px'>Stock en <b>"+sucursal+"</b>: <b style='color:"+col+"'>"+cur+" unidades</b></p>";
+  html+="<div style='display:flex;gap:8px'>";
+  html+="<button class='btn green' style='flex:1' id='btnConf' onclick='confirmarSalida()'>Confirmar retiro</button>";
+  html+="<button class='btn' style='background:#f3f4f6;color:#333' onclick='cancelarScan()'>X</button>";
+  html+="</div></div>";
+  setHTML("scanConfirm",html);
+}
+
+function cancelarScan(){
+  scanResult=null;
+  setHTML("scanConfirm","");
+  setHTML("camWrap","");
+}
+
+function confirmarSalida(){
+  if(!scanResult) return;
+  var btn=el("btnConf");
+  if(btn){ btn.disabled=true; btn.textContent="Guardando..."; }
+  var key=sucursal.toLowerCase();
+  var cur=stock[scanResult.id]?stock[scanResult.id][key]||0:0;
+  if(cur<=0){ showMsg("Sin stock en "+sucursal,"warn"); scanResult=null; return; }
+  var row=stock[scanResult.id]._row;
+  var nb=key==="brandsen"?cur-1:stock[scanResult.id].brandsen||0;
+  var nt=key==="tandil"  ?cur-1:stock[scanResult.id].tandil||0;
+  var no=key==="olavarria"?cur-1:stock[scanResult.id].olavarria||0;
+  var tid=scanResult.id, tname=scanResult.nombre, timp=scanResult.impresora;
+  apiPost({action:"updateStock",row:row,brandsen:nb,tandil:nt,olavarria:no})
+    .then(function(){
+      return apiPost({action:"addHistorial",fecha:new Date().toLocaleString("es-AR"),toner:tname,impresora:timp,sucursal:sucursal,nombre:nombre});
+    })
+    .then(function(){
+      stock[tid][key]=cur-1;
+      setHTML("scanConfirm","");
+      showMsg("Retiro registrado correctamente","ok");
+    })
+    .catch(function(e){ showMsg("Error al guardar: "+e.message,"err"); });
+  scanResult=null;
+}
+
+function showMsg(txt,type){
+  var html="<div class='msg "+type+"'>"+txt+"<br><button class='btn' style='margin-top:10px;font-size:14px' onclick='nuevoScan()'>Escanear otro</button></div>";
+  setHTML("scanMsg",html);
+}
+
+function nuevoScan(){
+  setHTML("scanMsg","");
+  setHTML("camWrap","");
+  startCam();
+}
+
+function startCam(){
+  var html="<div id='videoWrap'>";
+  html+="<video id='camVideo' playsinline muted></video>";
+  html+="<canvas id='camCanvas' style='display:none'></canvas>";
+  html+="<button class='cam-cancel' onclick='cancelCam()'>X Cancelar</button>";
+  html+="<div class='cam-hint'>Apunta la camara al codigo QR</div>";
+  html+="</div>";
+  setHTML("camWrap",html);
+  navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"}})
+    .then(function(stream){
+      camStream=stream;
+      var v=el("camVideo");
+      v.srcObject=stream;
+      v.play();
+      setTimeout(scanTick,600);
+    })
+    .catch(function(){
+      setHTML("camWrap","<p style='color:red;text-align:center;margin-top:8px'>No se pudo acceder a la camara</p>");
+    });
+}
+
+function cancelCam(){
+  stopCam();
+  setHTML("camWrap","");
+}
+
+function scanTick(){
+  var v=el("camVideo"), c=el("camCanvas");
+  if(!v||!c) return;
+  if(v.readyState===v.HAVE_ENOUGH_DATA){
+    c.width=v.videoWidth; c.height=v.videoHeight;
+    c.getContext("2d").drawImage(v,0,0);
+    var img=c.getContext("2d").getImageData(0,0,c.width,c.height);
+    var code=jsQR(img.data,img.width,img.height);
+    if(code){
+      stopCam();
+      setHTML("camWrap","");
+      var toner=null;
+      for(var i=0;i<TONERS.length;i++){
+        if(TONERS[i].id===code.data){ toner=TONERS[i]; break; }
+      }
+      if(!toner){ showMsg("QR no reconocido","err"); return; }
+      showScanResult(toner);
+      return;
+    }
+  }
+  rafId=requestAnimationFrame(scanTick);
+}
+
+function stopCam(){
+  if(rafId){ cancelAnimationFrame(rafId); rafId=null; }
+  if(camStream){ camStream.getTracks().forEach(function(t){ t.stop(); }); camStream=null; }
+}
+
+function showLogin(){
+  stopCam();
+  el("btnAdmin").style.display="none";
+  var html="<div style='max-width:340px;margin:60px auto;padding:24px'>";
+  html+="<div style='text-align:center;margin-bottom:24px'><div style='font-size:48px'>&#128272;</div>";
+  html+="<h2 style='color:#1e3a5f;margin:8px 0 4px'>Panel Administrador</h2>";
+  html+="<p style='color:#888;font-size:13px'>Ingresa tu contrasena</p></div>";
+  html+="<input type='password' id='inpPin' placeholder='Contrasena...' style='margin-bottom:6px'>";
+  html+="<p id='pinErr' style='color:#dc2626;font-size:13px;text-align:center;min-height:18px'></p>";
+  html+="<button class='btn full' style='margin-top:6px' onclick='checkPin()'>Ingresar</button>";
+  html+="<button class='btn full' style='margin-top:8px;background:#e8edf2;color:#333' onclick='renderPersonal()'>Volver</button>";
+  html+="</div>";
+  setHTML("app",html);
+  setTimeout(function(){
+    var inp=el("inpPin");
+    if(inp){
+      inp.focus();
+      inp.addEventListener("keydown",function(e){ if(e.key==="Enter") checkPin(); });
+    }
+  },100);
+}
+
+function checkPin(){
+  var v=el("inpPin");
+  if(!v) return;
+  if(v.value===ADMIN_PIN){
+    showLoading("Cargando panel...");
+    loadAll().then(function(){ renderAdmin("stock"); }).catch(function(e){ alert("Error: "+e.message); });
+  } else {
+    setHTML("pinErr","Contrasena incorrecta");
+    v.value="";
+    setTimeout(function(){ setHTML("pinErr",""); },2000);
+  }
+}
+
+function renderAdmin(tab){
+  adminTab=tab;
+  el("btnAdmin").style.display="none";
+  var html="<div class='wrap wide'>";
+  html+="<div style='display:flex;justify-content:space-between;align-items:center;margin:12px 0'>";
+  html+="<h2 style='color:#1e3a5f'>Administracion</h2>";
+  html+="<div style='display:flex;gap:8px'>";
+  html+="<button class='btn sm' onclick='refreshAdmin()'>Actualizar</button>";
+  html+="<button class='btn sm' style='background:#fee2e2;color:#dc2626' onclick='renderPersonal()'>Salir</button>";
+  html+="</div></div>";
+  html+="<div class='tabs'>";
+  var tabLabels={stock:"Stock",reporte:"Reporte",historial:"Historial",qr:"QR"};
+  ["stock","reporte","historial","qr"].forEach(function(t){
+    var cls="tab"+(tab===t?" on":"");
+    html+="<button class='"+cls+"' onclick='renderAdmin(\""+t+"\")'>"+tabLabels[t]+"</button>";
+  });
+  html+="</div>";
+
+  if(tab==="stock"){
+    html+="<p style='font-size:12px;color:#888;margin-bottom:8px'>Edita cuando ingresa mercaderia. Se guarda en Google Sheets.</p>";
+    html+="<div class='overflow'><table><thead><tr><th>Toner</th><th>Impresora</th><th>Brandsen</th><th>Tandil</th><th>Olavarria</th><th>Total</th></tr></thead><tbody>";
+    TONERS.forEach(function(t){
+      var s=stock[t.id]||{brandsen:0,tandil:0,olavarria:0,_row:2};
+      var tot=(s.brandsen||0)+(s.tandil||0)+(s.olavarria||0);
+      var col=tot===0?"#dc2626":tot<3?"#d97706":"#16a34a";
+      html+="<tr><td><b>"+t.nombre+"</b></td><td style='font-size:11px;color:#666'>"+t.impresora+"</td>";
+      ["brandsen","tandil","olavarria"].forEach(function(suc){
+        html+="<td style='text-align:center'><input type='number' min='0' value='"+(s[suc]||0)+"' onchange='updateCell(\""+t.id+"\",\""+suc+"\",this.value)'></td>";
+      });
+      html+="<td style='text-align:center;font-weight:800;font-size:15px;color:"+col+"'>"+tot+"</td></tr>";
+    });
+    html+="</tbody></table></div>";
+  }
+
+  if(tab==="reporte"){
+    html+="<p style='font-size:13px;color:#555;margin-bottom:10px'>Consumo mensual estimado vs stock actual.</p>";
+    html+="<div class='overflow'><table><thead><tr><th>Toner</th><th>Consumo/mes</th><th>Stock actual</th><th>A pedir</th></tr></thead><tbody>";
+    var pedido=[];
+    TONERS.forEach(function(t){
+      var cons=t.b+t.t+t.o;
+      var s=stock[t.id]||{brandsen:0,tandil:0,olavarria:0};
+      var st=(s.brandsen||0)+(s.tandil||0)+(s.olavarria||0);
+      var pedir=Math.max(0,cons-st);
+      if(pedir>0) pedido.push(t.nombre+": "+pedir+" unidad(es)");
+      var bg=pedir>0?"#fff7ed":"";
+      var stCol=st===0?"#dc2626":"#333";
+      var pdTxt=pedir>0?"PEDIR: "+pedir:"OK";
+      var pdCol=pedir>0?"#dc2626":"#16a34a";
+      html+="<tr style='background:"+bg+"'><td>"+t.nombre+"</td><td style='text-align:center'>"+cons+"</td>";
+      html+="<td style='text-align:center;color:"+stCol+";font-weight:"+(st===0?700:400)+"'>"+st+"</td>";
+      html+="<td style='text-align:center;font-weight:700;color:"+pdCol+"'>"+pdTxt+"</td></tr>";
+    });
+    html+="</tbody></table></div>";
+    if(pedido.length>0){
+      var fecha=new Date().toLocaleDateString("es-AR");
+      var txt="PEDIDO DE TONERS - "+fecha+"\n\n"+pedido.join("\n");
+      html+="<p style='font-weight:700;margin:16px 0 6px'>Texto para copiar:</p>";
+      html+="<textarea id='txtReporte' readonly>"+txt+"</textarea>";
+      html+="<button class='btn' style='margin-top:8px' onclick='copiarReporte()'>Copiar al portapapeles</button>";
+    } else {
+      html+="<p style='color:#16a34a;font-weight:700;margin-top:12px'>Stock suficiente para el mes.</p>";
+    }
+  }
+
+  if(tab==="historial"){
+    html+="<div class='overflow'>";
+    if(historial.length===0){
+      html+="<p style='color:#888;text-align:center;padding:30px'>Sin movimientos aun.</p>";
+    } else {
+      html+="<table><thead><tr><th>Fecha y hora</th><th>Toner</th><th>Sucursal</th><th>Persona</th></tr></thead><tbody>";
+      historial.forEach(function(m){
+        html+="<tr><td style='font-size:12px;white-space:nowrap'>"+m.fecha+"</td><td>"+m.toner+"</td><td>"+m.sucursal+"</td><td style='font-weight:600'>"+m.nombre+"</td></tr>";
+      });
+      html+="</tbody></table>";
+    }
+    html+="</div>";
+  }
+
+  if(tab==="qr"){
+    html+="<p style='font-size:13px;color:#555;margin-bottom:12px'>Imprime, recorta y pega un QR en cada modelo de toner.</p>";
+    html+="<div class='qr-grid'>";
+    TONERS.forEach(function(t){
+      var qr="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data="+encodeURIComponent(t.id);
+      html+="<div class='qr-item'><img src='"+qr+"'>";
+      html+="<p style='font-weight:700;font-size:11px;word-break:break-word;margin:6px 0 2px'>"+t.nombre+"</p>";
+      html+="<p style='font-size:10px;color:#888'>"+t.impresora+"</p></div>";
+    });
+    html+="</div><button class='btn' style='margin-top:16px' onclick='window.print()'>Imprimir QRs</button>";
+  }
+
+  html+="</div>";
+  setHTML("app",html);
+}
+
+function copiarReporte(){
+  var t=el("txtReporte");
+  if(t) navigator.clipboard.writeText(t.value);
+}
+
+function updateCell(id,suc,val){
+  var v=Math.max(0,parseInt(val)||0);
+  if(!stock[id]) return;
+  stock[id][suc]=v;
+  var nb=stock[id].brandsen||0, nt=stock[id].tandil||0, no=stock[id].olavarria||0;
+  apiPost({action:"updateStock",row:stock[id]._row,brandsen:nb,tandil:nt,olavarria:no}).catch(function(){});
+}
+
+function refreshAdmin(){
+  showLoading("Actualizando...");
+  loadAll().then(function(){ renderAdmin(adminTab); }).catch(function(e){ alert("Error: "+e.message); });
+}
+
+initData();
+</script>
+</body>
+</html>
