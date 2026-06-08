@@ -80,7 +80,12 @@ var TONERS = [
   {id:"GN-TOCF283A",      nombre:"GN-TOCF283A CF2283A",         impresora:"LASERJET PRO M127fn",              b:3,  t:0, o:0},
   {id:"GN-TOCF258ASC",    nombre:"GN-TOCF258ASC",               impresora:"LASER JET PRO M404DW",             b:0,  t:2, o:0},
   {id:"PS-T409U-R",       nombre:"PS-T409U-R",                  impresora:"TOSHIBA ESTUDIO 409S",             b:0,  t:1, o:0},
-  {id:"GN-TOCF219A-DRUM", nombre:"GN-TOCF219A DRUM (con chip)", impresora:"hp lacerjet pro mfp 130 (Tambor)", b:1,  t:0, o:0}
+  {id:"GN-TOCF219A-DRUM", nombre:"GN-TOCF219A DRUM (con chip)", impresora:"hp lacerjet pro mfp 130 (Tambor)", b:1,  t:0, o:0},
+  {id:"LA-HP136AC",       nombre:"LA-HP136AC",                  impresora:"LaserJet M209 dw",                 b:0,  t:0, o:3},
+  {id:"LA-HPUNI153",      nombre:"LA-HPUNI153 / 5949A",         impresora:"HP LaserJet 1320",                 b:3,  t:3, o:3},
+  {id:"GPR-22",           nombre:"GPR-22",                      impresora:"IR 1018/1019/1020/1021/1022",      b:3,  t:0, o:0},
+  {id:"GPR-54",           nombre:"GPR-54",                      impresora:"IR 1430 / IR 1435",                b:3,  t:0, o:0},
+  {id:"364A",             nombre:"364A",                        impresora:"LaserJet P4014n",                  b:5,  t:0, o:0}
 ];
 
 var stock = {};
