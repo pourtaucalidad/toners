@@ -16,14 +16,14 @@ body{font-family:system-ui,sans-serif;background:#f8fafc;min-height:100vh}
 .card{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:16px;margin-bottom:12px}
 .card.blue{border:2px solid #2563eb}
 input[type=text],input[type=password]{width:100%;padding:11px 12px;border-radius:8px;border:1px solid #ccc;font-size:15px}
-input[type=number]{width:58px;text-align:center;border:1px solid #ccc;border-radius:6px;padding:5px 2px;font-size:13px}
+input[type=number]{width:70px;text-align:center;border:1px solid #ccc;border-radius:6px;padding:5px 2px;font-size:13px}
 .btn{padding:12px 20px;background:#2563eb;color:#fff;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:15px}
 .btn:disabled{opacity:.5;cursor:default}
 .btn.full{width:100%}
 .btn.green{background:#16a34a}
 .btn.sm{padding:7px 14px;font-size:13px}
-.suc-row{display:flex;gap:8px;margin-top:4px}
-.suc-btn{flex:1;padding:10px 4px;border-radius:8px;border:none;cursor:pointer;font-weight:700;font-size:14px;background:#e8edf2;color:#333}
+.suc-row{display:flex;gap:8px;margin-top:4px;flex-wrap:wrap}
+.suc-btn{flex:1;padding:10px 4px;border-radius:8px;border:none;cursor:pointer;font-weight:700;font-size:14px;background:#e8edf2;color:#333;min-width:80px}
 .suc-btn.on{background:#1e3a5f;color:#fff}
 .tabs{display:flex;gap:6px;margin-bottom:14px}
 .tab{flex:1;padding:9px 4px;border-radius:8px;border:none;cursor:pointer;font-size:13px;background:#e8edf2;color:#333}
@@ -66,28 +66,29 @@ var SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxnBCwaABRy9diVsrbEbcK
 var PAGE_URL = "https://pourtaucalidad.github.io/toners/stock-toners.html";
 
 var TONERS = [
-  {id:"LA-HP151AC",       nombre:"LA-HP151AC",                  impresora:"LaserJet PRO MFP 4103fdw",         b:5,  t:0, o:0},
-  {id:"MC1-5179-A03H",    nombre:"mc1-5179-a03h",               impresora:"Laser Jet pro m501 hp",            b:1,  t:0, o:0},
-  {id:"LA-HPCF230AC",     nombre:"LA-HPCF230AC",                impresora:"HP Laser Jet Pro M203dw",          b:0,  t:2, o:2},
-  {id:"LA-HPUNI35",       nombre:"LA-HPUNI35",                  impresora:"HP Laser Jet P1102w",              b:0,  t:1, o:0},
-  {id:"LA-HPCF217AC",     nombre:"LA-HPCF217AC",                impresora:"hp lacerjet pro mfp 130",          b:1,  t:1, o:2},
-  {id:"LA-HPCF289X",      nombre:"LA-HPCF289X no chip",         impresora:"LASER JET ENTERPRISE M507",        b:0,  t:1, o:0},
-  {id:"CANON-T06-BLACK",  nombre:"CANON TONER T06 BLACK",       impresora:"CANON IMAGERUNNER 1643 II",        b:2,  t:0, o:1},
-  {id:"LA-HP105AC",       nombre:"LA-HP105AC",                  impresora:"HP Laser MFP 135w",                b:19, t:6, o:0},
-  {id:"LA-HP-UNI05A",     nombre:"LA-HP UNI05A / C505/280",     impresora:"Hp Laser Jet P2035n",              b:0,  t:4, o:0},
-  {id:"LA-HPCF287X",      nombre:"LA-HPCF287X",                 impresora:"LASERJET PRO M501",                b:4,  t:0, o:0},
-  {id:"LA-HPCE278A",      nombre:"LA-HPCE278A",                 impresora:"HP LASERJET P1606dn",              b:2,  t:0, o:0},
-  {id:"GN-TOCF283A",      nombre:"GN-TOCF283A CF2283A",         impresora:"LASERJET PRO M127fn",              b:3,  t:0, o:0},
-  {id:"GN-TOCF258ASC",    nombre:"GN-TOCF258ASC",               impresora:"LASER JET PRO M404DW",             b:0,  t:2, o:0},
-  {id:"PS-T409U-R",       nombre:"PS-T409U-R",                  impresora:"TOSHIBA ESTUDIO 409S",             b:0,  t:1, o:0},
-  {id:"GN-TOCF219A-DRUM", nombre:"GN-TOCF219A DRUM (con chip)", impresora:"hp lacerjet pro mfp 130 (Tambor)", b:1,  t:0, o:0},
-  {id:"LA-HP136AC",       nombre:"LA-HP136AC",                  impresora:"LaserJet M209 dw",                 b:0,  t:0, o:3},
-  {id:"LA-HPUNI153",      nombre:"LA-HPUNI153 / 5949A",         impresora:"HP LaserJet 1320",                 b:3,  t:3, o:3},
-  {id:"GPR-22",           nombre:"GPR-22",                      impresora:"IR 1018/1019/1020/1021/1022",      b:3,  t:0, o:0},
-  {id:"GPR-54",           nombre:"GPR-54",                      impresora:"IR 1430 / IR 1435",                b:3,  t:0, o:0},
-  {id:"364A",             nombre:"364A",                        impresora:"LaserJet P4014n",                  b:5,  t:0, o:0}
+  {id:"LA-HP151AC",       nombre:"LA-HP151AC",                  impresora:"LaserJet PRO MFP 4103fdw",         stock:5},
+  {id:"MC1-5179-A03H",    nombre:"mc1-5179-a03h",               impresora:"Laser Jet pro m501 hp",            stock:1},
+  {id:"LA-HPCF230AC",     nombre:"LA-HPCF230AC",                impresora:"HP Laser Jet Pro M203dw",          stock:4},
+  {id:"LA-HPUNI35",       nombre:"LA-HPUNI35",                  impresora:"HP Laser Jet P1102w",              stock:1},
+  {id:"LA-HPCF217AC",     nombre:"LA-HPCF217AC",                impresora:"hp lacerjet pro mfp 130",          stock:4},
+  {id:"LA-HPCF289X",      nombre:"LA-HPCF289X no chip",         impresora:"LASER JET ENTERPRISE M507",        stock:1},
+  {id:"CANON-T06-BLACK",  nombre:"CANON TONER T06 BLACK",       impresora:"CANON IMAGERUNNER 1643 II",        stock:3},
+  {id:"LA-HP105AC",       nombre:"LA-HP105AC",                  impresora:"HP Laser MFP 135w",                stock:25},
+  {id:"LA-HP-UNI05A",     nombre:"LA-HP UNI05A / C505/280",     impresora:"Hp Laser Jet P2035n",              stock:4},
+  {id:"LA-HPCF287X",      nombre:"LA-HPCF287X",                 impresora:"LASERJET PRO M501",                stock:4},
+  {id:"LA-HPCE278A",      nombre:"LA-HPCE278A",                 impresora:"HP LASERJET P1606dn",              stock:2},
+  {id:"GN-TOCF283A",      nombre:"GN-TOCF283A CF2283A",         impresora:"LASERJET PRO M127fn",              stock:3},
+  {id:"GN-TOCF258ASC",    nombre:"GN-TOCF258ASC",               impresora:"LASER JET PRO M404DW",             stock:2},
+  {id:"PS-T409U-R",       nombre:"PS-T409U-R",                  impresora:"TOSHIBA ESTUDIO 409S",             stock:1},
+  {id:"GN-TOCF219A-DRUM", nombre:"GN-TOCF219A DRUM (con chip)", impresora:"hp lacerjet pro mfp 130 (Tambor)", stock:1},
+  {id:"LA-HP136AC",       nombre:"LA-HP136AC",                  impresora:"LaserJet M209 dw",                 stock:3},
+  {id:"LA-HPUNI153",      nombre:"LA-HPUNI153 / 5949A",         impresora:"HP LaserJet 1320",                 stock:9},
+  {id:"GPR-22",           nombre:"GPR-22",                      impresora:"IR 1018/1019/1020/1021/1022",      stock:3},
+  {id:"GPR-54",           nombre:"GPR-54",                      impresora:"IR 1430 / IR 1435",                stock:3},
+  {id:"364A",             nombre:"364A",                        impresora:"LaserJet P4014n",                  stock:5}
 ];
 
+var SUCURSALES = ["Brandsen","Tandil","Olavarria"];
 var stock = {};
 var historial = [];
 var nombre = "";
@@ -109,7 +110,6 @@ function apiPost(data){
 }
 
 function initData(){
-  // Leer parametro ?toner= de la URL
   var params = new URLSearchParams(window.location.search);
   var tonerParam = params.get("toner");
   if(tonerParam){
@@ -117,9 +117,8 @@ function initData(){
       if(TONERS[i].id===tonerParam){ autoToner=TONERS[i]; break; }
     }
   }
-
   showLoading("Conectando con Google Sheets...");
-  var rows = TONERS.map(function(t){ return [t.id,t.nombre,t.impresora,t.b,t.t,t.o]; });
+  var rows = TONERS.map(function(t){ return [t.id, t.nombre, t.impresora, t.stock]; });
   apiPost({action:"initStock",rows:rows})
     .then(function(){ return apiGet("getStock"); })
     .then(function(rows){ parseStock(rows); renderPersonal(); })
@@ -131,7 +130,7 @@ function initData(){
 function parseStock(rows){
   stock={};
   rows.forEach(function(r,i){
-    stock[r[0]]={brandsen:parseInt(r[3])||0,tandil:parseInt(r[4])||0,olavarria:parseInt(r[5])||0,_row:i+2};
+    stock[r[0]]={ cantidad: parseInt(r[3])||0, _row: i+2 };
   });
 }
 
@@ -160,22 +159,21 @@ function renderPersonal(){
     html+="<button class='btn full' style='margin-top:10px' onclick='confirmarNombre()'>Continuar</button></div>";
   } else {
     html+="<div class='nbar'><span>"+nombre+"</span><button onclick='cambiarNombre()'>Cambiar</button></div>";
-    html+="<div class='card' style='margin-bottom:12px'><p style='font-weight:700;font-size:14px;margin-bottom:10px'>Sucursal</p><div class='suc-row'>";
-    ["Brandsen","Tandil","Olavarria"].forEach(function(s){
+    html+="<div class='card' style='margin-bottom:12px'><p style='font-weight:700;font-size:14px;margin-bottom:10px'>Para qu&#233; sucursal?</p><div class='suc-row'>";
+    SUCURSALES.forEach(function(s){
       html+="<button class='suc-btn"+(sucursal===s?" on":"")+"' onclick='setSucursal(\""+s+"\")'>"+s+"</button>";
     });
     html+="</div></div>";
 
-    // Si vino con toner por URL, mostrarlo directo
     if(autoToner){
+      var cur=stock[autoToner.id]?stock[autoToner.id].cantidad||0:0;
+      var col=cur>0?"#16a34a":"#dc2626";
       html+="<div class='toner-banner'>";
       html+="<p style='font-size:12px;color:#0369a1;margin-bottom:4px'>Toner detectado desde QR:</p>";
       html+="<p style='font-weight:800;font-size:20px;color:#1e3a5f;margin-bottom:2px'>"+autoToner.nombre+"</p>";
-      html+="<p style='font-size:12px;color:#666'>"+autoToner.impresora+"</p>";
+      html+="<p style='font-size:12px;color:#666;margin-bottom:8px'>"+autoToner.impresora+"</p>";
+      html+="<p style='font-size:14px'>Stock disponible: <b style='color:"+col+"'>"+cur+" unidades</b></p>";
       html+="</div>";
-      var cur=stock[autoToner.id]?stock[autoToner.id][sucursal.toLowerCase()]||0:0;
-      var col=cur>0?"#16a34a":"#dc2626";
-      html+="<p style='font-size:14px;margin-bottom:14px;text-align:center'>Stock en <b>"+sucursal+"</b>: <b style='color:"+col+"'>"+cur+" unidades</b></p>";
       html+="<button class='btn green full' id='btnConf' onclick='confirmarAutoSalida()'>Confirmar retiro</button>";
       html+="<div id='scanMsg'></div>";
     } else {
@@ -190,42 +188,32 @@ function renderPersonal(){
   if(!nombre){
     setTimeout(function(){
       var inp=el("inpNombre");
-      if(inp){
-        inp.focus();
-        inp.addEventListener("keydown",function(e){ if(e.key==="Enter") confirmarNombre(); });
-      }
+      if(inp){ inp.focus(); inp.addEventListener("keydown",function(e){ if(e.key==="Enter") confirmarNombre(); }); }
     },100);
   }
 }
 
 function cambiarNombre(){ nombre=""; renderPersonal(); }
 function setSucursal(s){ sucursal=s; renderPersonal(); }
-
 function confirmarNombre(){
-  var v=el("inpNombre");
-  if(!v||!v.value.trim()) return;
-  nombre=v.value.trim();
-  renderPersonal();
+  var v=el("inpNombre"); if(!v||!v.value.trim()) return;
+  nombre=v.value.trim(); renderPersonal();
 }
 
 function confirmarAutoSalida(){
   var btn=el("btnConf");
   if(btn){ btn.disabled=true; btn.textContent="Guardando..."; }
-  var key=sucursal.toLowerCase();
-  var cur=stock[autoToner.id]?stock[autoToner.id][key]||0:0;
-  if(cur<=0){ setHTML("scanMsg","<div class='msg warn'>Sin stock en "+sucursal+"</div>"); if(btn){btn.disabled=false;btn.textContent="Confirmar retiro";} return; }
+  var cur=stock[autoToner.id]?stock[autoToner.id].cantidad||0:0;
+  if(cur<=0){ setHTML("scanMsg","<div class='msg warn'>Sin stock disponible.</div>"); if(btn){btn.disabled=false;btn.textContent="Confirmar retiro";} return; }
   var row=stock[autoToner.id]._row;
-  var nb=key==="brandsen"?cur-1:stock[autoToner.id].brandsen||0;
-  var nt=key==="tandil"  ?cur-1:stock[autoToner.id].tandil||0;
-  var no=key==="olavarria"?cur-1:stock[autoToner.id].olavarria||0;
   var tid=autoToner.id, tname=autoToner.nombre, timp=autoToner.impresora;
-  apiPost({action:"updateStock",row:row,brandsen:nb,tandil:nt,olavarria:no})
+  apiPost({action:"updateStock",row:row,stock:cur-1})
     .then(function(){
       return apiPost({action:"addHistorial",fecha:new Date().toLocaleString("es-AR"),toner:tname,impresora:timp,sucursal:sucursal,nombre:nombre});
     })
     .then(function(){
-      stock[tid][key]=cur-1;
-      if(btn){ btn.disabled=true; btn.textContent="Registrado"; }
+      stock[tid].cantidad=cur-1;
+      if(btn){ btn.disabled=true; btn.textContent="Registrado ✓"; }
       setHTML("scanMsg","<div class='msg ok'>Retiro registrado correctamente</div>");
     })
     .catch(function(e){ setHTML("scanMsg","<div class='msg err'>Error: "+e.message+"</div>"); });
@@ -233,14 +221,13 @@ function confirmarAutoSalida(){
 
 function showScanResult(toner){
   scanResult=toner;
-  var key=sucursal.toLowerCase();
-  var cur=stock[toner.id]?stock[toner.id][key]||0:0;
+  var cur=stock[toner.id]?stock[toner.id].cantidad||0:0;
   var col=cur>0?"#16a34a":"#dc2626";
   var html="<div class='card blue' style='margin-top:12px'>";
   html+="<p style='font-size:12px;color:#555;margin-bottom:4px'>Toner detectado:</p>";
   html+="<p style='font-weight:800;font-size:18px;color:#1e3a5f;margin-bottom:2px'>"+toner.nombre+"</p>";
   html+="<p style='font-size:12px;color:#888;margin-bottom:10px'>"+toner.impresora+"</p>";
-  html+="<p style='font-size:14px;margin-bottom:14px'>Stock en <b>"+sucursal+"</b>: <b style='color:"+col+"'>"+cur+" unidades</b></p>";
+  html+="<p style='font-size:14px;margin-bottom:14px'>Stock disponible: <b style='color:"+col+"'>"+cur+" unidades</b></p>";
   html+="<div style='display:flex;gap:8px'>";
   html+="<button class='btn green' style='flex:1' id='btnConf' onclick='confirmarSalida()'>Confirmar retiro</button>";
   html+="<button class='btn' style='background:#f3f4f6;color:#333' onclick='cancelarScan()'>X</button>";
@@ -254,20 +241,16 @@ function confirmarSalida(){
   if(!scanResult) return;
   var btn=el("btnConf");
   if(btn){ btn.disabled=true; btn.textContent="Guardando..."; }
-  var key=sucursal.toLowerCase();
-  var cur=stock[scanResult.id]?stock[scanResult.id][key]||0:0;
-  if(cur<=0){ showMsg("Sin stock en "+sucursal,"warn"); scanResult=null; return; }
+  var cur=stock[scanResult.id]?stock[scanResult.id].cantidad||0:0;
+  if(cur<=0){ showMsg("Sin stock disponible.","warn"); scanResult=null; return; }
   var row=stock[scanResult.id]._row;
-  var nb=key==="brandsen"?cur-1:stock[scanResult.id].brandsen||0;
-  var nt=key==="tandil"  ?cur-1:stock[scanResult.id].tandil||0;
-  var no=key==="olavarria"?cur-1:stock[scanResult.id].olavarria||0;
   var tid=scanResult.id, tname=scanResult.nombre, timp=scanResult.impresora;
-  apiPost({action:"updateStock",row:row,brandsen:nb,tandil:nt,olavarria:no})
+  apiPost({action:"updateStock",row:row,stock:cur-1})
     .then(function(){
       return apiPost({action:"addHistorial",fecha:new Date().toLocaleString("es-AR"),toner:tname,impresora:timp,sucursal:sucursal,nombre:nombre});
     })
     .then(function(){
-      stock[tid][key]=cur-1;
+      stock[tid].cantidad=cur-1;
       setHTML("scanConfirm","");
       showMsg("Retiro registrado correctamente","ok");
     })
@@ -279,7 +262,6 @@ function showMsg(txt,type){
   var html="<div class='msg "+type+"'>"+txt+"<br><button class='btn' style='margin-top:10px;font-size:14px' onclick='nuevoScan()'>Escanear otro</button></div>";
   setHTML("scanMsg",html);
 }
-
 function nuevoScan(){ setHTML("scanMsg",""); setHTML("camWrap",""); startCam(); }
 
 function startCam(){
@@ -293,7 +275,6 @@ function startCam(){
     })
     .catch(function(){ setHTML("camWrap","<p style='color:red;text-align:center;margin-top:8px'>No se pudo acceder a la camara</p>"); });
 }
-
 function cancelCam(){ stopCam(); setHTML("camWrap",""); }
 
 function scanTick(){
@@ -314,7 +295,6 @@ function scanTick(){
   }
   rafId=requestAnimationFrame(scanTick);
 }
-
 function stopCam(){
   if(rafId){ cancelAnimationFrame(rafId); rafId=null; }
   if(camStream){ camStream.getTracks().forEach(function(t){ t.stop(); }); camStream=null; }
@@ -366,43 +346,37 @@ function renderAdmin(tab){
   html+="</div>";
 
   if(tab==="stock"){
-    html+="<p style='font-size:12px;color:#888;margin-bottom:8px'>Edita cuando ingresa mercaderia. Se guarda en Google Sheets.</p>";
-    html+="<div class='overflow'><table><thead><tr><th>Toner</th><th>Impresora</th><th>Brandsen</th><th>Tandil</th><th>Olavarria</th><th>Total</th></tr></thead><tbody>";
+    html+="<p style='font-size:12px;color:#888;margin-bottom:8px'>Edita el stock cuando ingresa mercaderia. Se guarda en Google Sheets.</p>";
+    html+="<div class='overflow'><table><thead><tr><th>Toner</th><th>Impresora</th><th style='text-align:center'>Stock</th></tr></thead><tbody>";
     TONERS.forEach(function(t){
-      var s=stock[t.id]||{brandsen:0,tandil:0,olavarria:0,_row:2};
-      var tot=(s.brandsen||0)+(s.tandil||0)+(s.olavarria||0);
-      var col=tot===0?"#dc2626":tot<3?"#d97706":"#16a34a";
+      var cant=stock[t.id]?stock[t.id].cantidad||0:0;
+      var col=cant===0?"#dc2626":cant<3?"#d97706":"#16a34a";
       html+="<tr><td><b>"+t.nombre+"</b></td><td style='font-size:11px;color:#666'>"+t.impresora+"</td>";
-      ["brandsen","tandil","olavarria"].forEach(function(suc){
-        html+="<td style='text-align:center'><input type='number' min='0' value='"+(s[suc]||0)+"' onchange='updateCell(\""+t.id+"\",\""+suc+"\",this.value)'></td>";
-      });
-      html+="<td style='text-align:center;font-weight:800;font-size:15px;color:"+col+"'>"+tot+"</td></tr>";
+      html+="<td style='text-align:center'><input type='number' min='0' value='"+cant+"' onchange='updateCell(\""+t.id+"\",this.value)' style='width:70px;text-align:center;border:1px solid #ccc;border-radius:6px;padding:5px;font-size:14px;color:"+col+";font-weight:700'></td></tr>";
     });
     html+="</tbody></table></div>";
   }
 
   if(tab==="reporte"){
     html+="<p style='font-size:13px;color:#555;margin-bottom:10px'>Consumo mensual estimado vs stock actual.</p>";
-    html+="<div class='overflow'><table><thead><tr><th>Toner</th><th>Consumo/mes</th><th>Stock actual</th><th>A pedir</th></tr></thead><tbody>";
+    html+="<div class='overflow'><table><thead><tr><th>Toner</th><th>Impresora</th><th>Consumo/mes</th><th>Stock</th><th>A pedir</th></tr></thead><tbody>";
     var pedido=[];
     TONERS.forEach(function(t){
-      var cons=t.b+t.t+t.o;
-      var s=stock[t.id]||{brandsen:0,tandil:0,olavarria:0};
-      var st=(s.brandsen||0)+(s.tandil||0)+(s.olavarria||0);
-      var pedir=Math.max(0,cons-st);
+      var cons=t.stock;
+      var cant=stock[t.id]?stock[t.id].cantidad||0:0;
+      var pedir=Math.max(0,cons-cant);
       if(pedir>0) pedido.push(t.nombre+": "+pedir+" unidad(es)");
       var bg=pedir>0?"#fff7ed":"";
-      var stCol=st===0?"#dc2626":"#333";
-      var pdTxt=pedir>0?"PEDIR: "+pedir:"OK";
+      var cantCol=cant===0?"#dc2626":"#333";
       var pdCol=pedir>0?"#dc2626":"#16a34a";
-      html+="<tr style='background:"+bg+"'><td>"+t.nombre+"</td><td style='text-align:center'>"+cons+"</td>";
-      html+="<td style='text-align:center;color:"+stCol+";font-weight:"+(st===0?700:400)+"'>"+st+"</td>";
-      html+="<td style='text-align:center;font-weight:700;color:"+pdCol+"'>"+pdTxt+"</td></tr>";
+      html+="<tr style='background:"+bg+"'><td>"+t.nombre+"</td><td style='font-size:11px;color:#666'>"+t.impresora+"</td>";
+      html+="<td style='text-align:center'>"+cons+"</td>";
+      html+="<td style='text-align:center;font-weight:"+(cant===0?700:400)+";color:"+cantCol+"'>"+cant+"</td>";
+      html+="<td style='text-align:center;font-weight:700;color:"+pdCol+"'>"+(pedir>0?"&#9888;&#65039; "+pedir:"&#9989; OK")+"</td></tr>";
     });
     html+="</tbody></table></div>";
     if(pedido.length>0){
-      var fecha=new Date().toLocaleDateString("es-AR");
-      var txt="PEDIDO DE TONERS - "+fecha+"\n\n"+pedido.join("\n");
+      var txt="PEDIDO DE TONERS - "+new Date().toLocaleDateString("es-AR")+"\n\n"+pedido.join("\n");
       html+="<p style='font-weight:700;margin:16px 0 6px'>Texto para copiar:</p>";
       html+="<textarea id='txtReporte' readonly>"+txt+"</textarea>";
       html+="<button class='btn' style='margin-top:8px' onclick='copiarReporte()'>Copiar al portapapeles</button>";
@@ -426,7 +400,7 @@ function renderAdmin(tab){
   }
 
   if(tab==="qr"){
-    html+="<p style='font-size:13px;color:#555;margin-bottom:12px'>Imprime, recorta y pega un QR en cada toner. Al escanearlo se abre la pagina directo con el toner detectado.</p>";
+    html+="<p style='font-size:13px;color:#555;margin-bottom:12px'>Imprime, recorta y pega un QR en cada toner. Al escanearlo se abre la pagina directo.</p>";
     html+="<div class='qr-grid'>";
     TONERS.forEach(function(t){
       var url=PAGE_URL+"?toner="+encodeURIComponent(t.id);
@@ -446,12 +420,11 @@ function copiarReporte(){
   var t=el("txtReporte"); if(t) navigator.clipboard.writeText(t.value);
 }
 
-function updateCell(id,suc,val){
+function updateCell(id,val){
   var v=Math.max(0,parseInt(val)||0);
   if(!stock[id]) return;
-  stock[id][suc]=v;
-  var nb=stock[id].brandsen||0, nt=stock[id].tandil||0, no=stock[id].olavarria||0;
-  apiPost({action:"updateStock",row:stock[id]._row,brandsen:nb,tandil:nt,olavarria:no}).catch(function(){});
+  stock[id].cantidad=v;
+  apiPost({action:"updateStock",row:stock[id]._row,stock:v}).catch(function(){});
 }
 
 function refreshAdmin(){
