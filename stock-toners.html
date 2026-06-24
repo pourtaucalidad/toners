@@ -203,20 +203,27 @@ function confirmarNombre(){
 function confirmarAutoSalida(){
   var btn=el("btnConf");
   if(btn){ btn.disabled=true; btn.textContent="Guardando..."; }
-  var cur=stock[autoToner.id]?stock[autoToner.id].cantidad||0:0;
-  if(cur<=0){ setHTML("scanMsg","<div class='msg warn'>Sin stock disponible.</div>"); if(btn){btn.disabled=false;btn.textContent="Confirmar retiro";} return; }
+  if(!stock[autoToner.id]){ setHTML("scanMsg","<div class='msg err'>Toner no encontrado.</div>"); return; }
   var row=stock[autoToner.id]._row;
   var tid=autoToner.id, tname=autoToner.nombre, timp=autoToner.impresora;
-  apiPost({action:"updateStock",row:row,stock:cur-1})
-    .then(function(){
-      return apiPost({action:"addHistorial",fecha:new Date().toLocaleString("es-AR"),toner:tname,impresora:timp,sucursal:sucursal,nombre:nombre});
+  apiPost({action:"retiro",row:row,fecha:new Date().toLocaleString("es-AR"),toner:tname,impresora:timp,sucursal:sucursal,nombre:nombre})
+    .then(function(res){
+      if(res && res.ok){
+        stock[tid].cantidad=res.nuevo;
+        if(btn){ btn.disabled=true; btn.textContent="Registrado"; }
+        setHTML("scanMsg","<div class='msg ok'>Retiro registrado. Quedan "+res.nuevo+" unidades.</div>");
+      } else if(res && res.sinStock){
+        if(btn){ btn.disabled=false; btn.textContent="Confirmar retiro"; }
+        setHTML("scanMsg","<div class='msg warn'>Sin stock disponible de este toner.</div>");
+      } else {
+        if(btn){ btn.disabled=false; btn.textContent="Confirmar retiro"; }
+        setHTML("scanMsg","<div class='msg err'>No se pudo registrar. Intenta de nuevo.</div>");
+      }
     })
-    .then(function(){
-      stock[tid].cantidad=cur-1;
-      if(btn){ btn.disabled=true; btn.textContent="Registrado ✓"; }
-      setHTML("scanMsg","<div class='msg ok'>Retiro registrado correctamente</div>");
-    })
-    .catch(function(e){ setHTML("scanMsg","<div class='msg err'>Error: "+e.message+"</div>"); });
+    .catch(function(e){
+      if(btn){ btn.disabled=false; btn.textContent="Confirmar retiro"; }
+      setHTML("scanMsg","<div class='msg err'>Error: "+e.message+"</div>");
+    });
 }
 
 function showScanResult(toner){
@@ -241,20 +248,24 @@ function confirmarSalida(){
   if(!scanResult) return;
   var btn=el("btnConf");
   if(btn){ btn.disabled=true; btn.textContent="Guardando..."; }
-  var cur=stock[scanResult.id]?stock[scanResult.id].cantidad||0:0;
-  if(cur<=0){ showMsg("Sin stock disponible.","warn"); scanResult=null; return; }
+  if(!stock[scanResult.id]){ showMsg("Toner no encontrado.","err"); scanResult=null; return; }
   var row=stock[scanResult.id]._row;
   var tid=scanResult.id, tname=scanResult.nombre, timp=scanResult.impresora;
-  apiPost({action:"updateStock",row:row,stock:cur-1})
-    .then(function(){
-      return apiPost({action:"addHistorial",fecha:new Date().toLocaleString("es-AR"),toner:tname,impresora:timp,sucursal:sucursal,nombre:nombre});
+  apiPost({action:"retiro",row:row,fecha:new Date().toLocaleString("es-AR"),toner:tname,impresora:timp,sucursal:sucursal,nombre:nombre})
+    .then(function(res){
+      if(res && res.ok){
+        stock[tid].cantidad=res.nuevo;
+        setHTML("scanConfirm","");
+        showMsg("Retiro registrado. Quedan "+res.nuevo+" unidades.","ok");
+      } else if(res && res.sinStock){
+        setHTML("scanConfirm","");
+        showMsg("Sin stock disponible de este toner.","warn");
+      } else {
+        setHTML("scanConfirm","");
+        showMsg("No se pudo registrar. Intenta de nuevo.","err");
+      }
     })
-    .then(function(){
-      stock[tid].cantidad=cur-1;
-      setHTML("scanConfirm","");
-      showMsg("Retiro registrado correctamente","ok");
-    })
-    .catch(function(e){ showMsg("Error: "+e.message,"err"); });
+    .catch(function(e){ setHTML("scanConfirm",""); showMsg("Error: "+e.message,"err"); });
   scanResult=null;
 }
 
